@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AgentsModule } from './agents/agents.module.js';
 import { PropertiesModule } from './properties/properties.module.js';
+import { CommissionModule } from './commission/commission.module.js';
 
 
 @Module({
@@ -22,6 +23,7 @@ import { PropertiesModule } from './properties/properties.module.js';
   ),
     AgentsModule,
     PropertiesModule,
+    CommissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
