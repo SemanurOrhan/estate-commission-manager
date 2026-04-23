@@ -138,6 +138,8 @@ describe('TransactionsService', () => {
         populate: jest.fn().mockReturnValue({ exec: innerExec }),
       });
 
+      mockStageMachineService.isCompleted.mockReturnValueOnce(false);
+
       const result = await service.findOne(transactionId);
       expect(result).toEqual(mockTx);
     });
@@ -172,6 +174,7 @@ describe('TransactionsService', () => {
       mockStageMachineService.getNextStage.mockReturnValueOnce(
         TransactionStage.EARNEST_MONEY,
       );
+      mockStageMachineService.isCompleted.mockReturnValueOnce(false);
       mockStageMachineService.isCompleted.mockReturnValueOnce(false);
 
       // findByIdAndUpdate - id ile eşleşen transaction bulunur
@@ -220,6 +223,7 @@ describe('TransactionsService', () => {
       mockStageMachineService.getNextStage.mockReturnValueOnce(
         TransactionStage.EARNEST_MONEY,
       );
+      mockStageMachineService.isCompleted.mockReturnValueOnce(false);
       mockStageMachineService.isCompleted.mockReturnValueOnce(false);
 
       const updateExec = jest.fn().mockResolvedValueOnce(updatedTx);
@@ -272,6 +276,7 @@ describe('TransactionsService', () => {
       mockStageMachineService.getNextStage.mockReturnValueOnce(
         TransactionStage.COMPLETED,
       );
+      mockStageMachineService.isCompleted.mockReturnValueOnce(false);
       mockStageMachineService.isCompleted.mockReturnValueOnce(true);
 
       mockAgentsService.findOne
@@ -321,6 +326,7 @@ describe('TransactionsService', () => {
       mockStageMachineService.getNextStage.mockReturnValueOnce(
         TransactionStage.COMPLETED,
       );
+      mockStageMachineService.isCompleted.mockReturnValueOnce(false);
       mockStageMachineService.isCompleted.mockReturnValueOnce(true);
 
       mockAgentsService.findOne
@@ -369,6 +375,7 @@ describe('TransactionsService', () => {
       mockStageMachineService.getNextStage.mockReturnValueOnce(
         TransactionStage.TITLE_DEED,
       );
+      mockStageMachineService.isCompleted.mockReturnValueOnce(false);
       mockStageMachineService.isCompleted.mockReturnValueOnce(false);
 
       const updateExec = jest.fn().mockResolvedValueOnce(updatedTx);
