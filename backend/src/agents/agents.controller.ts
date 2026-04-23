@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   HttpCode,
@@ -41,6 +42,9 @@ export class AgentsController {
     @Body() updateAgentDto: UpdateAgentDto,
   ) { return this.agentsService.update(id, updateAgentDto); }
 
-
-
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async delete(@Param('id') id: string) {
+    return this.agentsService.delete(id);
+  }
 }

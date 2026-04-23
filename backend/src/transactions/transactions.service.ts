@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Transaction, TransactionDocument } from './schemas/transaction.schema.js';
+import { Transaction, TransactionDocument, CommissionBreakdown } from './schemas/transaction.schema.js';
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
 import { StageMachineService } from '../stage-machine/stage-machine.service.js';
 import { CommissionService } from '../commission/commission.service.js';
@@ -40,6 +40,29 @@ export class TransactionsService {
     if (!transaction) {
       throw new NotFoundException(`Transaction with ID "${id}" not found`);
     }
+    if (
+      this.stageMachineService.isCompleted(transaction.stage) &&
+      !transaction.commissionBreakdown
+    ) {
+      const listingAgentIdStr = this.extractId(transaction.listingAgentId);
+      const sellingAgentIdStr = this.extractId(transaction.sellingAgentId);
+
+      const listingAgent = await this.agentsService.findOne(listingAgentIdStr);
+      const sellingAgent = await this.agentsService.findOne(sellingAgentIdStr);
+
+      const breakdown = this.commissionService.calculate({
+        totalServiceFee: transaction.totalServiceFee,
+        listingAgentId: listingAgentIdStr,
+        sellingAgentId: sellingAgentIdStr,
+        listingAgentName: `${listingAgent.firstName} ${listingAgent.lastName}`,
+        sellingAgentName: `${sellingAgent.firstName} ${sellingAgent.lastName}`,
+      });
+
+      const result = transaction.toObject();
+      result.commissionBreakdown = breakdown as unknown as CommissionBreakdown;
+      return result as TransactionDocument;
+    }
+
     return transaction;
   }
 
@@ -57,28 +80,27 @@ export class TransactionsService {
     };
 
     const updatePayload: Record<string, unknown> = {
-      stage: nextStage,
+      $set: { stage: nextStage } as Record<string, unknown>,
       $push: { stageHistory: historyEntry },
     };
 
     // Eğer işlem 'completed' (tamamlandı) aşamasına geçerse komisyon hesaplamasını tetikle ve dökümü kaydet.
     if (this.stageMachineService.isCompleted(nextStage)) {
-      const listingAgent = await this.agentsService.findOne(
-        transaction.listingAgentId.toString(),
-      );
-      const sellingAgent = await this.agentsService.findOne(
-        transaction.sellingAgentId.toString(),
-      );
+      const listingAgentIdStr = this.extractId(transaction.listingAgentId);
+      const sellingAgentIdStr = this.extractId(transaction.sellingAgentId);
+
+      const listingAgent = await this.agentsService.findOne(listingAgentIdStr);
+      const sellingAgent = await this.agentsService.findOne(sellingAgentIdStr);
 
       const breakdown = this.commissionService.calculate({
         totalServiceFee: transaction.totalServiceFee,
-        listingAgentId: transaction.listingAgentId,
-        sellingAgentId: transaction.sellingAgentId,
+        listingAgentId: listingAgentIdStr,
+        sellingAgentId: sellingAgentIdStr,
         listingAgentName: `${listingAgent.firstName} ${listingAgent.lastName}`,
         sellingAgentName: `${sellingAgent.firstName} ${sellingAgent.lastName}`,
       });
 
-      updatePayload.commissionBreakdown = breakdown;
+      (updatePayload.$set as Record<string, unknown>).commissionBreakdown = breakdown;
     }
 
     const updated = await this.transactionModel
@@ -92,4 +114,13 @@ export class TransactionsService {
 
     return updated;
   }
+
+  // Ref ID'lerini ayıklar
+  private extractId(ref: unknown): string {
+    if (ref && typeof ref === 'object' && '_id' in ref) {
+      return String((ref as Record<string, unknown>)._id);
+    }
+    return String(ref);
+  }
 }
+

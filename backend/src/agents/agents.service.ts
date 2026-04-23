@@ -40,4 +40,12 @@ export class AgentsService {
       throw new NotFoundException(`Agent with ID "${id}" not found`);
     }return agent;
   }
+
+  async delete(id: string): Promise<AgentDocument> {
+    const agent = await this.agentModel.findByIdAndDelete(id).exec();
+    if (!agent) {
+      throw new NotFoundException(`Agent with ID "${id}" not found`);
+    }
+    return agent;
+  }
 }

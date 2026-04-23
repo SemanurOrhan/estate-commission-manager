@@ -41,4 +41,12 @@ export class PropertiesService {
     }
     return property;
   }
+
+  async delete(id: string): Promise<PropertyDocument> {
+    const property = await this.propertyModel.findByIdAndDelete(id).exec();
+    if (!property) {
+      throw new NotFoundException(`Property with ID "${id}" not found`);
+    }
+    return property;
+  }
 }

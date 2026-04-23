@@ -11,6 +11,7 @@ import {
 import { TransactionsService } from './transactions.service.js';
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
 import { AdvanceStageDto } from './dto/advance-stage.dto.js';
+import { MongoIdValidationPipe } from '../common/pipes/mongo-id-validation.pipe.js';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -28,15 +29,16 @@ export class TransactionsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', MongoIdValidationPipe) id: string) {
     return this.transactionsService.findOne(id);
   }
 
   @Patch(':id/advance')
   async advanceStage(
-    @Param('id') id: string,
+    @Param('id', MongoIdValidationPipe) id: string,
     @Body() advanceStageDto: AdvanceStageDto,
   ) {
     return this.transactionsService.advanceStage(id, advanceStageDto.notes);
   }
 }
+
