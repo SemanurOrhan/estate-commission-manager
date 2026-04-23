@@ -40,7 +40,6 @@
         <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div>
             <h2 class="text-2xl font-bold text-gray-900">Transaction Details</h2>
-            <p class="text-sm text-gray-400 mt-1">ID: {{ transaction._id }}</p>
           </div>
           <span
             :class="[
@@ -169,6 +168,7 @@ const id = computed(() => {
 useHead({ title: computed(() => `Transaction ${id.value} — EstateComm`) });
 
 onMounted(() => {
+  store.$reset();
   store.fetchOne(id.value);
 });
 

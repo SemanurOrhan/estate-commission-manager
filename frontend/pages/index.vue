@@ -74,13 +74,12 @@
               :key="tx._id"
               class="hover:bg-gray-50/50 transition-colors"
             >
-              <!-- Property -->
               <td class="px-6 py-4">
                 <template v-if="getProperty(tx)">
                   <p class="text-sm font-medium text-gray-900">{{ getProperty(tx)!.address }}</p>
                   <p class="text-xs text-gray-400">{{ getProperty(tx)!.city }}</p>
                 </template>
-                <span v-else class="text-sm text-gray-400 font-mono">{{ getPropertyId(tx) }}</span>
+                <p v-else class="text-sm text-gray-500">Unknown Property</p>
               </td>
 
               <!-- Agreed Price -->
@@ -133,6 +132,7 @@ useHead({ title: 'Dashboard — EstateComm' });
 const store = useTransactionsStore();
 
 onMounted(() => {
+  store.$reset();
   store.fetchAll();
 });
 

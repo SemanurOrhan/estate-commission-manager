@@ -103,6 +103,12 @@ export const useTransactionsStore = defineStore('transactions', () => {
     }
   }
 
+  function $reset(): void {
+    isLoading.value = false;
+    isAdvancing.value = false;
+    error.value = null;
+  }
+
   return {
     // State
     transactions,
@@ -119,5 +125,6 @@ export const useTransactionsStore = defineStore('transactions', () => {
     fetchOne,
     advanceStage,
     createTransaction,
+    $reset,
   };
 });

@@ -41,18 +41,26 @@
             type="email"
             required
             placeholder="john@agency.com"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+            :class="[
+              'w-full px-3 py-2 border rounded-lg text-sm outline-none transition-shadow',
+              emailError ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+            ]"
+            @blur="validateEmail"
+            @input="emailError = ''"
           />
+          <p v-if="emailError" class="mt-1 text-sm text-red-600">{{ emailError }}</p>
         </div>
         <div>
           <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
           <input
             id="phone"
-            v-model="form.phone"
+            :value="phoneDisplay"
             type="tel"
             required
-            placeholder="+1 555 123 4567"
+            maxlength="17"
+            placeholder="555 123 4567"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow"
+            @input="onPhoneInput"
           />
         </div>
         <div class="md:col-span-2 flex items-center gap-3">
@@ -155,6 +163,8 @@ const isSubmitting = ref(false);
 const successMsg = ref('');
 const errorMsg = ref('');
 const listError = ref('');
+const emailError = ref('');
+const phoneDisplay = ref('');
 
 const form = reactive({
   firstName: '',
@@ -162,6 +172,32 @@ const form = reactive({
   email: '',
   phone: '',
 });
+
+function validateEmail(): void {
+  const email = form.email.trim();
+  if (!email) { emailError.value = ''; return; }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.includes('@')) {
+    emailError.value = "Please include an '@' in the email address.";
+  } else if (!emailRegex.test(email)) {
+    emailError.value = 'Please enter a valid email address (e.g., name@domain.com).';
+  } else {
+    emailError.value = '';
+  }
+}
+
+function onPhoneInput(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  const digits = input.value.replace(/[^0-9]/g, '').slice(0, 15);
+  let formatted = '';
+  for (let i = 0; i < digits.length; i++) {
+    if (i === 3 || i === 6 || i === 10) formatted += ' ';
+    formatted += digits[i];
+  }
+  form.phone = formatted.trim();
+  phoneDisplay.value = formatted.trim();
+  nextTick(() => { input.value = formatted.trim(); });
+}
 
 async function fetchAgents(): Promise<void> {
   isLoadingList.value = true;
@@ -195,6 +231,7 @@ async function handleCreate(): Promise<void> {
     form.lastName = '';
     form.email = '';
     form.phone = '';
+    phoneDisplay.value = '';
   } catch (err: unknown) {
     errorMsg.value = err instanceof Error ? err.message : 'Failed to create agent.';
   } finally {

@@ -10,7 +10,7 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto',
+        'fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:z-auto',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full',
       ]"
     >
@@ -72,13 +72,6 @@
           {{ pageTitle }}
         </h1>
 
-        <!-- Right-side actions -->
-        <div class="flex items-center gap-3">
-          <button class="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors relative">
-            <Icon name="heroicons:bell-solid" class="w-5 h-5" />
-            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-          </button>
-        </div>
       </header>
 
       <!-- Page Content -->
@@ -104,12 +97,14 @@ const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: 'heroicons:squares-2x2-solid' },
   { to: '/agents', label: 'Agents', icon: 'heroicons:user-group-solid' },
   { to: '/properties', label: 'Properties', icon: 'heroicons:home-modern-solid' },
+  { to: '/reports', label: 'Reports', icon: 'heroicons:chart-bar-solid' },
 ];
 
 const pageTitles: Record<string, string> = {
   '/': 'Dashboard',
   '/agents': 'Agents',
   '/properties': 'Properties',
+  '/reports': 'Financial Reports',
 };
 
 const pageTitle = computed(() => {

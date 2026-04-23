@@ -5,7 +5,7 @@
       Back to Dashboard
     </NuxtLink>
 
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl mx-auto mt-10">
       <h2 class="text-2xl font-bold text-gray-900 mb-1">New Transaction</h2>
       <p class="text-sm text-gray-500 mb-6">Create a new real estate transaction</p>
 
@@ -63,11 +63,31 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="agreedPrice" class="block text-sm font-medium text-gray-700 mb-1">Agreed Price ($)</label>
-            <input id="agreedPrice" v-model.number="form.agreedPrice" type="number" required min="0" placeholder="200000" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+            <input
+              id="agreedPrice"
+              :value="agreedPriceDisplay"
+              type="text"
+              inputmode="numeric"
+              required
+              maxlength="15"
+              placeholder="200,000"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              @input="onPriceInput($event, 'agreedPrice')"
+            />
           </div>
           <div>
             <label for="totalServiceFee" class="block text-sm font-medium text-gray-700 mb-1">Total Service Fee ($)</label>
-            <input id="totalServiceFee" v-model.number="form.totalServiceFee" type="number" required min="0" placeholder="10000" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+            <input
+              id="totalServiceFee"
+              :value="serviceFeeDisplay"
+              type="text"
+              inputmode="numeric"
+              required
+              maxlength="15"
+              placeholder="10,000"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              @input="onPriceInput($event, 'totalServiceFee')"
+            />
           </div>
         </div>
 
@@ -79,7 +99,19 @@
           </div>
           <div>
             <label for="buyerEmail" class="block text-sm font-medium text-gray-700 mb-1">Buyer Email <span class="text-gray-400">(optional)</span></label>
-            <input id="buyerEmail" v-model="form.buyerEmail" type="email" placeholder="jane@example.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+            <input
+              id="buyerEmail"
+              v-model="form.buyerEmail"
+              type="email"
+              placeholder="jane@example.com"
+              :class="[
+                'w-full px-3 py-2 border rounded-lg text-sm outline-none transition-colors',
+                buyerEmailError ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+              ]"
+              @blur="validateBuyerEmail"
+              @input="buyerEmailError = ''"
+            />
+            <p v-if="buyerEmailError" class="mt-1 text-sm text-red-600">{{ buyerEmailError }}</p>
           </div>
         </div>
 
@@ -113,6 +145,10 @@ const isLoadingData = ref(false);
 const isSubmitting = ref(false);
 const errorMsg = ref('');
 const loadError = ref('');
+const buyerEmailError = ref('');
+
+const agreedPriceDisplay = ref('');
+const serviceFeeDisplay = ref('');
 
 const form = reactive({
   propertyId: '',
@@ -126,6 +162,38 @@ const form = reactive({
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(value);
+}
+
+function formatNumberWithCommas(n: number): string {
+  return n === 0 ? '' : n.toLocaleString('en-US');
+}
+
+function onPriceInput(event: Event, field: 'agreedPrice' | 'totalServiceFee'): void {
+  const input = event.target as HTMLInputElement;
+  const digits = input.value.replace(/[^0-9]/g, '').slice(0, 12);
+  const numericValue = digits ? parseInt(digits, 10) : 0;
+  const formatted = formatNumberWithCommas(numericValue);
+
+  form[field] = numericValue;
+  if (field === 'agreedPrice') {
+    agreedPriceDisplay.value = formatted;
+  } else {
+    serviceFeeDisplay.value = formatted;
+  }
+  nextTick(() => { input.value = formatted; });
+}
+
+function validateBuyerEmail(): void {
+  const email = form.buyerEmail.trim();
+  if (!email) { buyerEmailError.value = ''; return; }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.includes('@')) {
+    buyerEmailError.value = "Please include an '@' in the email address.";
+  } else if (!emailRegex.test(email)) {
+    buyerEmailError.value = 'Please enter a valid email address (e.g., name@domain.com).';
+  } else {
+    buyerEmailError.value = '';
+  }
 }
 
 async function loadData(): Promise<void> {

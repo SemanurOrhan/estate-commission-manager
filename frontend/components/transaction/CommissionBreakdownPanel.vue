@@ -20,7 +20,7 @@
       </div>
 
       <!-- Split Visual -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Agency Share -->
         <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
           <div class="flex items-center gap-2 mb-2">
@@ -57,21 +57,6 @@
             </span>
             <span class="text-xs text-blue-500">{{ entry.percentage }}%</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Verification Footer -->
-      <div class="pt-4 border-t border-gray-100">
-        <div class="flex items-center justify-between text-sm">
-          <span class="text-gray-500">Agency + Agents Total</span>
-          <span class="font-semibold text-gray-700">{{ formatCurrency(verificationTotal) }}</span>
-        </div>
-        <div
-          v-if="isBalanced"
-          class="flex items-center gap-1 mt-1 text-xs text-emerald-600"
-        >
-          <Icon name="heroicons:check-circle-solid" class="w-4 h-4" />
-          <span>Breakdown verified — totals match.</span>
         </div>
       </div>
     </div>
