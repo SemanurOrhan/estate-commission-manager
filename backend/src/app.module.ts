@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AgentsModule } from './agents/agents.module.js';
 import { PropertiesModule } from './properties/properties.module.js';
 import { CommissionModule } from './commission/commission.module.js';
+import { TransactionsModule } from './transactions/transactions.module.js';
 
 
 @Module({
@@ -20,13 +21,13 @@ import { CommissionModule } from './commission/commission.module.js';
       }),
       inject: [ConfigService],
     }
-  ),
+    ),
     AgentsModule,
     PropertiesModule,
     CommissionModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
-
+export class AppModule { }
