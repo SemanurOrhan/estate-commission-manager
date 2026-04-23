@@ -27,9 +27,9 @@ export const useTransactionsStore = defineStore('transactions', () => {
     error.value = null;
     try {
       const config = useRuntimeConfig();
-      const response = await $fetch<ApiResponse<Transaction[]>>(
-        `${config.public.apiBase}/transactions`,
-      );
+      const response = await $fetch<ApiResponse<Transaction[]>>('/transactions', {
+        baseURL: config.public.apiBase,
+      });
       transactions.value = response.data;
     } catch (err: unknown) {
       const message =
@@ -45,9 +45,9 @@ export const useTransactionsStore = defineStore('transactions', () => {
     error.value = null;
     try {
       const config = useRuntimeConfig();
-      const response = await $fetch<ApiResponse<Transaction>>(
-        `${config.public.apiBase}/transactions/${id}`,
-      );
+      const response = await $fetch<ApiResponse<Transaction>>(`/transactions/${id}`, {
+        baseURL: config.public.apiBase,
+      });
       currentTransaction.value = response.data;
     } catch (err: unknown) {
       const message =
@@ -63,13 +63,11 @@ export const useTransactionsStore = defineStore('transactions', () => {
     error.value = null;
     try {
       const config = useRuntimeConfig();
-      const response = await $fetch<ApiResponse<Transaction>>(
-        `${config.public.apiBase}/transactions/${id}/advance`,
-        {
-          method: 'PATCH',
-          body: { notes },
-        },
-      );
+      const response = await $fetch<ApiResponse<Transaction>>(`/transactions/${id}/advance`, {
+        baseURL: config.public.apiBase,
+        method: 'PATCH',
+        body: { notes },
+      });
       currentTransaction.value = response.data;
 
       // Listeden ilgili transactionu bulur ve günceller
