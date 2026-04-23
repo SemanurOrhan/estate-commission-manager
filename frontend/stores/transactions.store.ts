@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { Transaction, ApiResponse, TransactionStage } from '~/types';
+import type { Transaction, ApiResponse, CreateTransactionPayload } from '~/types';
 
 export const useTransactionsStore = defineStore('transactions', () => {
   // State
@@ -32,9 +32,8 @@ export const useTransactionsStore = defineStore('transactions', () => {
       });
       transactions.value = response.data;
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to fetch transactions.';
-      error.value = message;
+      const fetchErr = err as Record<string, any>;
+      error.value = fetchErr?.data?.message || (err instanceof Error ? err.message : 'Failed to fetch transactions.');
     } finally {
       isLoading.value = false;
     }
@@ -45,14 +44,13 @@ export const useTransactionsStore = defineStore('transactions', () => {
     error.value = null;
     try {
       const config = useRuntimeConfig();
-      const response = await $fetch<ApiResponse<Transaction>>(`/transactions/${id}`, {
+      const response = await $fetch<ApiResponse<Transaction>>(`/transactions/${id.trim()}`, {
         baseURL: config.public.apiBase,
       });
       currentTransaction.value = response.data;
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to fetch transaction.';
-      error.value = message;
+      const fetchErr = err as Record<string, any>;
+      error.value = fetchErr?.data?.message || (err instanceof Error ? err.message : 'Failed to fetch transaction.');
     } finally {
       isLoading.value = false;
     }
@@ -63,7 +61,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
     error.value = null;
     try {
       const config = useRuntimeConfig();
-      const response = await $fetch<ApiResponse<Transaction>>(`/transactions/${id}/advance`, {
+      const response = await $fetch<ApiResponse<Transaction>>(`/transactions/${id.trim()}/advance`, {
         baseURL: config.public.apiBase,
         method: 'PATCH',
         body: { notes },
@@ -76,12 +74,32 @@ export const useTransactionsStore = defineStore('transactions', () => {
         transactions.value[idx] = response.data;
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Stage transition failed.';
-      error.value = message;
+      const fetchErr = err as Record<string, any>;
+      error.value = fetchErr?.data?.message || (err instanceof Error ? err.message : 'Stage transition failed.');
       throw err;
     } finally {
       isAdvancing.value = false;
+    }
+  }
+
+  async function createTransaction(payload: CreateTransactionPayload): Promise<Transaction> {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      const config = useRuntimeConfig();
+      const response = await $fetch<ApiResponse<Transaction>>('/transactions', {
+        baseURL: config.public.apiBase,
+        method: 'POST',
+        body: payload,
+      });
+      transactions.value.push(response.data);
+      return response.data;
+    } catch (err: unknown) {
+      const fetchErr = err as Record<string, any>;
+      error.value = fetchErr?.data?.message || (err instanceof Error ? err.message : 'Failed to create transaction.');
+      throw err;
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -100,5 +118,6 @@ export const useTransactionsStore = defineStore('transactions', () => {
     fetchAll,
     fetchOne,
     advanceStage,
+    createTransaction,
   };
 });

@@ -17,9 +17,20 @@
     <!-- Error State -->
     <div
       v-else-if="store.error"
-      class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm"
+      class="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center"
     >
-      {{ store.error }}
+      <Icon name="heroicons:exclamation-triangle-solid" class="w-12 h-12 text-amber-400 mx-auto" />
+      <h3 class="mt-4 text-lg font-medium text-gray-700">Something went wrong</h3>
+      <p class="mt-1 text-sm text-gray-400 max-w-md mx-auto">
+        Unable to connect to the server or load data. Please try again later.
+      </p>
+      <button
+        class="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+        @click="store.fetchOne(id)"
+      >
+        <Icon name="heroicons:arrow-path-solid" class="w-4 h-4" />
+        Retry
+      </button>
     </div>
 
     <!-- Main Content -->
@@ -52,6 +63,10 @@
             <template v-if="propertyData">
               <p class="font-semibold text-gray-800">{{ propertyData.address }}</p>
               <p class="text-sm text-gray-500">{{ propertyData.city }}, {{ propertyData.postcode }}</p>
+              <p class="text-sm text-gray-500 mt-1">
+                Asking Price:
+                <span class="font-medium text-gray-700">{{ formatCurrency(propertyData.askingPrice) }}</span>
+              </p>
             </template>
             <p v-else class="text-sm text-gray-400">{{ transaction.propertyId }}</p>
           </div>
@@ -121,12 +136,18 @@
             {{ store.isAdvancing ? 'Advancing...' : 'Advance Stage' }}
           </button>
         </div>
+
+        <!-- Advance Error -->
+        <div v-if="advanceError" class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+          <Icon name="heroicons:x-circle-solid" class="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+          <p class="text-sm text-red-700">{{ advanceError }}</p>
+        </div>
       </div>
 
-      <!-- Commission Breakdown (only when completed) -->
-      <CommissionBreakdownPanel
-        v-if="isCompleted && transaction.commissionBreakdown"
-        :breakdown="transaction.commissionBreakdown"
+      <!-- Commission Breakdown -->
+      <TransactionCommissionBreakdownPanel
+        v-if="store.currentTransaction?.stage === 'completed' && store.currentTransaction?.commissionBreakdown"
+        :breakdown="store.currentTransaction.commissionBreakdown"
       />
     </template>
   </div>
@@ -142,7 +163,7 @@ const store = useTransactionsStore();
 
 const id = computed(() => {
   const param = route.params.id;
-  return Array.isArray(param) ? param[0] : param;
+  return String(Array.isArray(param) ? param[0] : param).trim();
 });
 
 useHead({ title: computed(() => `Transaction ${id.value} — EstateComm`) });
@@ -156,6 +177,8 @@ const transaction = computed(() => store.currentTransaction);
 const isCompleted = computed(
   () => transaction.value?.stage === TransactionStage.COMPLETED,
 );
+
+const advanceError = ref('');
 
 const propertyData = computed((): Property | null => {
   const prop = transaction.value?.propertyId;
@@ -205,10 +228,12 @@ function stageBadgeClass(stage: TransactionStage): string {
 }
 
 async function handleAdvance(): Promise<void> {
+  advanceError.value = '';
   try {
     await store.advanceStage(id.value);
   } catch {
-    // Error is already handled by the store
+    advanceError.value = store.error || 'Stage transition failed. Please try again.';
   }
 }
 </script>
+

@@ -8,6 +8,13 @@
       </div>
       <div class="flex items-center gap-3">
         <span class="text-sm text-gray-400">{{ transactions.length }} transactions</span>
+        <NuxtLink
+          to="/transactions/new"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+        >
+          <Icon name="heroicons:plus-solid" class="w-4 h-4" />
+          New Transaction
+        </NuxtLink>
       </div>
     </div>
 
@@ -19,9 +26,20 @@
     <!-- Error State -->
     <div
       v-else-if="store.error"
-      class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm"
+      class="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center"
     >
-      {{ store.error }}
+      <Icon name="heroicons:exclamation-triangle-solid" class="w-12 h-12 text-amber-400 mx-auto" />
+      <h3 class="mt-4 text-lg font-medium text-gray-700">Something went wrong</h3>
+      <p class="mt-1 text-sm text-gray-400 max-w-md mx-auto">
+        Unable to connect to the server or load data. Please try again later.
+      </p>
+      <button
+        class="mt-5 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+        @click="store.fetchAll()"
+      >
+        <Icon name="heroicons:arrow-path-solid" class="w-4 h-4" />
+        Retry
+      </button>
     </div>
 
     <!-- Empty State -->

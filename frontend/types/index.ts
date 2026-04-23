@@ -84,3 +84,15 @@ export interface ApiResponse<T> {
   statusCode: number;
   timestamp: string;
 }
+
+// ── Create Payloads ─────────────
+export interface CreateTransactionPayload {
+  propertyId: string;
+  agreedPrice: number;
+  totalServiceFee: number;
+  listingAgentId: string;
+  sellingAgentId: string;
+  buyerName?: string;
+  buyerEmail?: string;
+}
+
