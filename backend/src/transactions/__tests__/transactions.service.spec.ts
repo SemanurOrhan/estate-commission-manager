@@ -190,7 +190,9 @@ describe('TransactionsService', () => {
       ).toHaveBeenCalledWith(
         transactionId,
         expect.objectContaining({
-          stage: TransactionStage.EARNEST_MONEY,
+          $set: expect.objectContaining({
+            stage: TransactionStage.EARNEST_MONEY,
+          }),
           $push: expect.objectContaining({
             stageHistory: expect.objectContaining({
               stage: TransactionStage.EARNEST_MONEY,
@@ -288,8 +290,8 @@ describe('TransactionsService', () => {
       expect(mockCommissionService.calculate).toHaveBeenCalledTimes(1);
       expect(mockCommissionService.calculate).toHaveBeenCalledWith({
         totalServiceFee: 10000,
-        listingAgentId: agentAId,
-        sellingAgentId: agentBId,
+        listingAgentId: agentAId.toString(),
+        sellingAgentId: agentBId.toString(),
         listingAgentName: 'Alice Smith',
         sellingAgentName: 'Bob Jones',
       });
@@ -298,8 +300,10 @@ describe('TransactionsService', () => {
       ).toHaveBeenCalledWith(
         transactionId,
         expect.objectContaining({
-          stage: TransactionStage.COMPLETED,
-          commissionBreakdown: mockBreakdown,
+          $set: expect.objectContaining({
+            stage: TransactionStage.COMPLETED,
+            commissionBreakdown: mockBreakdown,
+          }),
         }),
         { new: true },
       );
