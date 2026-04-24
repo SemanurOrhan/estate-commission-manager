@@ -55,6 +55,10 @@ Built with **NestJS** (backend), **Nuxt 3** (frontend), **MongoDB Atlas** (datab
 ![Property Management](./screenshots/properties.png)
 *Management panel for property listings, types, and pricing.*
 
+### New Transaction Form
+![New Transaction](./screenshots/transaction-details.png)
+*Modern form layout featuring real-time currency formatting, phone masking, and inline email validation.*
+
 ### Completed Transaction
 ![Completed Transaction](./screenshots/complate.png)
 *Final view of a successfully closed real estate transaction.*
