@@ -25,7 +25,7 @@ Built with **NestJS** (backend), **Nuxt 3** (frontend), **MongoDB Atlas** (datab
 | Frontend | Nuxt 3, Pinia, Tailwind CSS |
 | Database | MongoDB Atlas |
 | Testing | Jest (55 unit tests) |
-| Deployment | Vercel |
+| Deployment | Vercel (Frontend), Render (Backend) |
 
 ---
 
